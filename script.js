@@ -201,14 +201,14 @@ function createAdminIdentityCard(identity) {
         <p><strong>Discord ID:</strong> ${identity.discordId}</p>
         <p><strong>تاريخ الإنشاء:</strong> ${new Date(identity.createdAt).toLocaleString()}</p>
         <span class="status ${statusClass}">${getStatusText(identity.status)}</span>
-        <div class="identity-actions">
-            ${identity.status !== 'accepted' ? '<button class="accept-btn" data-id="' + identity.id + '">قبول</button>' : ''}
-            ${identity.status !== 'rejected' ? '<button class="reject-btn" data-id="' + identity.id + '">رفض</button>' : ''}
-            <button class="delete-btn" data-id="${identity.id}">حذف</button>
+        <div class="identity-actions" data-id="${identity.id}">
+            ${identity.status !== 'accepted' ? '<button class="accept-btn">قبول</button>' : ''}
+            ${identity.status !== 'rejected' ? '<button class="reject-btn">رفض</button>' : ''}
+            <button class="delete-btn">حذف</button>
             ${identity.status === 'accepted' ? 
-              '<button class="suspend-btn" data-id="' + identity.id + '">إيقاف الخدمات</button>' : 
+              '<button class="suspend-btn">إيقاف الخدمات</button>' : 
               identity.status === 'pending' ? 
-              '<button class="restore-btn" data-id="' + identity.id + '">استعادة</button>' : ''}
+              '<button class="restore-btn">استعادة</button>' : ''}
         </div>
     `;
     
@@ -217,11 +217,14 @@ function createAdminIdentityCard(identity) {
 
 // وظيفة تغيير حالة الهوية
 function changeIdentityStatus(id, status) {
-    const identityIndex = identitiesDB.findIndex(id => id.id === id);
+    const identityIndex = identitiesDB.findIndex(identity => identity.id === id);
     if (identityIndex === -1) return;
     
     identitiesDB[identityIndex].status = status;
     localStorage.setItem('identitiesDB', JSON.stringify(identitiesDB));
+    
+    // عرض رسالة تأكيد
+    alert(`تم تغيير حالة الهوية إلى "${getStatusText(status)}" بنجاح`);
     
     // إعادة تحميل الهويات
     const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
@@ -236,6 +239,9 @@ function deleteIdentity(id) {
     
     identitiesDB = identitiesDB.filter(identity => identity.id !== id);
     localStorage.setItem('identitiesDB', JSON.stringify(identitiesDB));
+    
+    // عرض رسالة تأكيد
+    alert('تم حذف الهوية بنجاح');
     
     // إعادة تحميل الهويات
     const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
@@ -263,28 +269,28 @@ function switchTab(tabId) {
 
 // أحداث النقر على الأزرار في لوحة المسؤولين
 document.addEventListener('click', function(e) {
+    const actionsDiv = e.target.closest('.identity-actions');
+    if (!actionsDiv) return;
+    
+    const id = actionsDiv.getAttribute('data-id');
+    
     if (e.target.classList.contains('accept-btn')) {
-        const id = e.target.getAttribute('data-id');
         changeIdentityStatus(id, 'accepted');
     }
     
     if (e.target.classList.contains('reject-btn')) {
-        const id = e.target.getAttribute('data-id');
         changeIdentityStatus(id, 'rejected');
     }
     
     if (e.target.classList.contains('delete-btn')) {
-        const id = e.target.getAttribute('data-id');
         deleteIdentity(id);
     }
     
     if (e.target.classList.contains('suspend-btn')) {
-        const id = e.target.getAttribute('data-id');
         changeIdentityStatus(id, 'pending');
     }
     
     if (e.target.classList.contains('restore-btn')) {
-        const id = e.target.getAttribute('data-id');
         changeIdentityStatus(id, 'accepted');
     }
 });
@@ -308,5 +314,17 @@ document.addEventListener('DOMContentLoaded', function() {
             link.textContent = 'لوحة المسؤولين';
             link.href = 'admin-panel.html';
         });
+    }
+    
+    // تحميل الهويات إذا كانت الصفحة تحتوي على العنصر
+    if (document.getElementById('identitiesContainer')) {
+        loadIdentities();
+        updateRemainingIdentities();
+    }
+    
+    // تهيئة أزرار التبويب إذا كانت موجودة
+    if (document.querySelector('.tab-btn.active')) {
+        const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
+        loadAdminIdentities(activeTab);
     }
 });
