@@ -6,8 +6,6 @@ const ADMIN_CREDENTIALS = {
 
 // محاكاة قاعدة البيانات - التعديل هنا فقط
 let identitiesDB = JSON.parse(localStorage.getItem('sharedDB')) || [];
-
-// بقية الأكواد كما هي بدون تعديل
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
 // وظيفة إنشاء هوية جديدة - التعديل هنا فقط
@@ -44,7 +42,6 @@ function createIdentity() {
     };
     
     identitiesDB.push(newIdentity);
-    // التعديل هنا فقط - تغيير اسم المفتاح
     localStorage.setItem('sharedDB', JSON.stringify(identitiesDB));
     
     sendIdentityNotification(newIdentity);
@@ -53,11 +50,12 @@ function createIdentity() {
     window.location.href = 'identities.html';
 }
 
-// باقي الدوال تبقى كما هي بدون تعديل
+// وظيفة إرسال إشعار الهوية
 function sendIdentityNotification(identity) {
     console.log('إرسال إشعار الهوية إلى المسؤولين:', identity);
 }
 
+// وظيفة تحميل الهويات للمستخدم العادي
 function loadIdentities() {
     const container = document.getElementById('identitiesContainer');
     if (!container) return;
@@ -76,6 +74,7 @@ function loadIdentities() {
     });
 }
 
+// وظيفة تحديث عدد الهويات المتبقية
 function updateRemainingIdentities() {
     const element = document.getElementById('remainingIdentities');
     if (!element) return;
@@ -85,6 +84,7 @@ function updateRemainingIdentities() {
     element.textContent = remaining > 0 ? remaining : 0;
 }
 
+// وظيفة إنشاء بطاقة هوية
 function createIdentityCard(identity) {
     const card = document.createElement('div');
     card.className = 'identity-card';
@@ -105,6 +105,7 @@ function createIdentityCard(identity) {
     return card;
 }
 
+// وظيفة تحويل حالة الهوية إلى نص
 function getStatusText(status) {
     switch(status) {
         case 'accepted': return 'مقبولة';
@@ -114,6 +115,7 @@ function getStatusText(status) {
     }
 }
 
+// وظيفة تسجيل دخول المسؤولين
 function adminLogin() {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
@@ -127,48 +129,57 @@ function adminLogin() {
     }
 }
 
+// وظيفة تسجيل خروج المسؤولين
 function adminLogout() {
     currentUser = null;
     localStorage.removeItem('currentUser');
     window.location.href = 'index.html';
 }
 
-function loadAdminIdentities(status) {
-    let containerId, identities;
+// وظيفة تحميل الهويات للمسؤولين - التعديل هنا
+function loadAdminIdentities() {
+    const acceptedIdentities = identitiesDB.filter(id => id.status === 'accepted');
+    const pendingIdentities = identitiesDB.filter(id => id.status === 'pending');
+    const rejectedIdentities = identitiesDB.filter(id => id.status === 'rejected');
     
-    switch(status) {
-        case 'accepted':
-            containerId = 'acceptedIdentities';
-            identities = identitiesDB.filter(id => id.status === 'accepted');
-            break;
-        case 'pending':
-            containerId = 'pendingIdentities';
-            identities = identitiesDB.filter(id => id.status === 'pending');
-            break;
-        case 'rejected':
-            containerId = 'rejectedIdentities';
-            identities = identitiesDB.filter(id => id.status === 'rejected');
-            break;
-        default:
-            return;
+    // تحميل الهويات المقبولة
+    const acceptedContainer = document.getElementById('acceptedIdentities');
+    acceptedContainer.innerHTML = '';
+    if (acceptedIdentities.length === 0) {
+        acceptedContainer.innerHTML = '<p>لا توجد هويات مقبولة</p>';
+    } else {
+        acceptedIdentities.forEach(identity => {
+            const card = createAdminIdentityCard(identity);
+            acceptedContainer.appendChild(card);
+        });
     }
     
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    if (identities.length === 0) {
-        container.innerHTML = '<p>لا توجد هويات في هذا القسم</p>';
-        return;
+    // تحميل الهويات المعلقة
+    const pendingContainer = document.getElementById('pendingIdentities');
+    pendingContainer.innerHTML = '';
+    if (pendingIdentities.length === 0) {
+        pendingContainer.innerHTML = '<p>لا توجد هويات قيد المراجعة</p>';
+    } else {
+        pendingIdentities.forEach(identity => {
+            const card = createAdminIdentityCard(identity);
+            pendingContainer.appendChild(card);
+        });
     }
     
-    identities.forEach(identity => {
-        const card = createAdminIdentityCard(identity);
-        container.appendChild(card);
-    });
+    // تحميل الهويات المرفوضة
+    const rejectedContainer = document.getElementById('rejectedIdentities');
+    rejectedContainer.innerHTML = '';
+    if (rejectedIdentities.length === 0) {
+        rejectedContainer.innerHTML = '<p>لا توجد هويات مرفوضة</p>';
+    } else {
+        rejectedIdentities.forEach(identity => {
+            const card = createAdminIdentityCard(identity);
+            rejectedContainer.appendChild(card);
+        });
+    }
 }
 
+// وظيفة إنشاء بطاقة هوية للمسؤولين
 function createAdminIdentityCard(identity) {
     const card = document.createElement('div');
     card.className = 'identity-card';
@@ -199,18 +210,21 @@ function createAdminIdentityCard(identity) {
     return card;
 }
 
+// وظيفة تغيير حالة الهوية - التعديل هنا
 function changeIdentityStatus(id, status) {
     const identityIndex = identitiesDB.findIndex(identity => identity.id === id);
     if (identityIndex === -1) return;
     
     identitiesDB[identityIndex].status = status;
     localStorage.setItem('sharedDB', JSON.stringify(identitiesDB));
-    alert(`تم تغيير حالة الهوية إلى "${getStatusText(status)}" بنجاح`);
     
-    const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
-    loadAdminIdentities(activeTab);
+    // إعادة تحميل جميع الهويات
+    loadAdminIdentities();
+    
+    alert(`تم تغيير حالة الهوية إلى "${getStatusText(status)}" بنجاح`);
 }
 
+// وظيفة حذف الهوية - التعديل هنا
 function deleteIdentity(id) {
     if (!confirm('هل أنت متأكد من حذف هذه الهوية؟ لا يمكن التراجع عن هذا الإجراء.')) {
         return;
@@ -218,12 +232,14 @@ function deleteIdentity(id) {
     
     identitiesDB = identitiesDB.filter(identity => identity.id !== id);
     localStorage.setItem('sharedDB', JSON.stringify(identitiesDB));
-    alert('تم حذف الهوية بنجاح');
     
-    const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
-    loadAdminIdentities(activeTab);
+    // إعادة تحميل جميع الهويات
+    loadAdminIdentities();
+    
+    alert('تم حذف الهوية بنجاح');
 }
 
+// وظيفة تبديل التبويبات
 function switchTab(tabId) {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -240,6 +256,7 @@ function switchTab(tabId) {
     });
 }
 
+// أحداث النقر على الأزرار في لوحة المسؤولين
 document.addEventListener('click', function(e) {
     const actionsDiv = e.target.closest('.identity-actions');
     if (!actionsDiv) return;
@@ -267,6 +284,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// حماية الصفحات الإدارية
 function protectAdminPages() {
     const isAdminPage = window.location.pathname.includes('admin');
     
@@ -275,6 +293,7 @@ function protectAdminPages() {
     }
 }
 
+// عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', function() {
     protectAdminPages();
     
@@ -292,6 +311,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (document.querySelector('.tab-btn.active')) {
         const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
-        loadAdminIdentities(activeTab);
+        loadAdminIdentities();
     }
 });
