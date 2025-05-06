@@ -1,1 +1,76 @@
-
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FalcoN LiFe - إنشاء هوية</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FalcoN LiFe - إنشاء هوية جديدة</h1>
+        </header>
+        
+        <nav>
+            <a href="index.html">الصفحة الرئيسية</a>
+            <a href="identities.html">الهويات</a>
+            <a href="create-identity.html" class="active">إنشاء هوية</a>
+            <a href="admin-login.html" class="admin-link">تسجيل دخول المسؤولين</a>
+        </nav>
+        
+        <section id="create-identity">
+            <div class="warning">
+                <h3>تحذير هام!</h3>
+                <p>يجب كتابة المعلومات وفق القواعد المحددة. أي مخالفة ستؤدي إلى رفض الهوية.</p>
+            </div>
+            
+            <form id="identityForm">
+                <div class="form-group">
+                    <label for="name">الاسم الكامل:</label>
+                    <input type="text" id="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="age">العمر:</label>
+                    <input type="number" id="age" min="1" max="120" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="job">الوظيفة:</label>
+                    <input type="text" id="job" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dob">تاريخ الميلاد:</label>
+                    <input type="date" id="dob" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="country">البلد:</label>
+                    <select id="country" required>
+                        <option value="">اختر بلداً</option>
+                        <option value="لوس انجلوس">لوس انجلوس</option>
+                        <option value="بليتو">بليتو</option>
+                        <option value="ساندي شور">ساندي شور</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="discordId">Discord ID:</label>
+                    <input type="text" id="discordId" placeholder="اسم المستخدم#1234" required>
+                </div>
+                
+                <button type="submit">إرسال الهوية</button>
+            </form>
+        </section>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('identityForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            createIdentity();
+        });
+    </script>
+</body>
+</html>
