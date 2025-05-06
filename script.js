@@ -4,11 +4,13 @@ const ADMIN_CREDENTIALS = {
     password: "FalcoN@1234"
 };
 
-// محاكاة قاعدة البيانات
-let identitiesDB = JSON.parse(localStorage.getItem('identitiesDB')) || [];
+// محاكاة قاعدة البيانات - التعديل هنا فقط
+let identitiesDB = JSON.parse(localStorage.getItem('sharedDB')) || [];
+
+// بقية الأكواد كما هي بدون تعديل
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
-// وظيفة إنشاء هوية جديدة
+// وظيفة إنشاء هوية جديدة - التعديل هنا فقط
 function createIdentity() {
     const name = document.getElementById('name').value.trim();
     const age = document.getElementById('age').value.trim();
@@ -17,20 +19,17 @@ function createIdentity() {
     const country = document.getElementById('country').value;
     const discordId = document.getElementById('discordId').value.trim();
     
-    // التحقق من الحقول المطلوبة
     if (!name || !age || !job || !dob || !country || !discordId) {
         alert('يرجى ملء جميع الحقول المطلوبة');
         return;
     }
     
-    // التحقق من عدد الهويات المسموح بها
     const userIdentities = identitiesDB.filter(id => id.userId === (currentUser?.id || 'guest'));
     if (userIdentities.length >= 2) {
         alert('لقد وصلت إلى الحد الأقصى لإنشاء الهويات (2 هويات)');
         return;
     }
     
-    // إنشاء هوية جديدة
     const newIdentity = {
         id: Date.now().toString(),
         userId: currentUser?.id || 'guest',
@@ -40,37 +39,29 @@ function createIdentity() {
         dob,
         country,
         discordId,
-        status: 'pending', // pending, accepted, rejected
+        status: 'pending',
         createdAt: new Date().toISOString()
     };
     
-    // إضافة الهوية إلى قاعدة البيانات
     identitiesDB.push(newIdentity);
-    localStorage.setItem('identitiesDB', JSON.stringify(identitiesDB));
+    // التعديل هنا فقط - تغيير اسم المفتاح
+    localStorage.setItem('sharedDB', JSON.stringify(identitiesDB));
     
-    // إرسال إشعار (في الواقع سيكون هذا إلى Webhook)
     sendIdentityNotification(newIdentity);
-    
-    // إعادة تعيين النموذج
     document.getElementById('identityForm').reset();
-    
-    // توجيه المستخدم إلى صفحة الهويات
     alert('تم إرسال طلب الهوية بنجاح، سيتم مراجعته من قبل المسؤولين');
     window.location.href = 'identities.html';
 }
 
-// وظيفة إرسال إشعار الهوية (محاكاة لإرسال إلى Discord)
+// باقي الدوال تبقى كما هي بدون تعديل
 function sendIdentityNotification(identity) {
     console.log('إرسال إشعار الهوية إلى المسؤولين:', identity);
-    // في الواقع: هنا سيتم إرسال طلب إلى Webhook Discord
 }
 
-// وظيفة تحميل الهويات
 function loadIdentities() {
     const container = document.getElementById('identitiesContainer');
     if (!container) return;
     
-    // تصفية الهويات المقبولة فقط
     const acceptedIdentities = identitiesDB.filter(id => id.status === 'accepted');
     
     if (acceptedIdentities.length === 0) {
@@ -85,7 +76,6 @@ function loadIdentities() {
     });
 }
 
-// وظيفة تحديث عدد الهويات المتبقية
 function updateRemainingIdentities() {
     const element = document.getElementById('remainingIdentities');
     if (!element) return;
@@ -95,7 +85,6 @@ function updateRemainingIdentities() {
     element.textContent = remaining > 0 ? remaining : 0;
 }
 
-// وظيفة إنشاء بطاقة هوية
 function createIdentityCard(identity) {
     const card = document.createElement('div');
     card.className = 'identity-card';
@@ -116,7 +105,6 @@ function createIdentityCard(identity) {
     return card;
 }
 
-// وظيفة تحويل حالة الهوية إلى نص
 function getStatusText(status) {
     switch(status) {
         case 'accepted': return 'مقبولة';
@@ -126,7 +114,6 @@ function getStatusText(status) {
     }
 }
 
-// وظيفة تسجيل دخول المسؤولين
 function adminLogin() {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
@@ -140,14 +127,12 @@ function adminLogin() {
     }
 }
 
-// وظيفة تسجيل خروج المسؤولين
 function adminLogout() {
     currentUser = null;
     localStorage.removeItem('currentUser');
     window.location.href = 'index.html';
 }
 
-// وظيفة تحميل الهويات للمسؤولين
 function loadAdminIdentities(status) {
     let containerId, identities;
     
@@ -184,7 +169,6 @@ function loadAdminIdentities(status) {
     });
 }
 
-// وظيفة إنشاء بطاقة هوية للمسؤولين
 function createAdminIdentityCard(identity) {
     const card = document.createElement('div');
     card.className = 'identity-card';
@@ -215,42 +199,32 @@ function createAdminIdentityCard(identity) {
     return card;
 }
 
-// وظيفة تغيير حالة الهوية
 function changeIdentityStatus(id, status) {
     const identityIndex = identitiesDB.findIndex(identity => identity.id === id);
     if (identityIndex === -1) return;
     
     identitiesDB[identityIndex].status = status;
-    localStorage.setItem('identitiesDB', JSON.stringify(identitiesDB));
-    
-    // عرض رسالة تأكيد
+    localStorage.setItem('sharedDB', JSON.stringify(identitiesDB));
     alert(`تم تغيير حالة الهوية إلى "${getStatusText(status)}" بنجاح`);
     
-    // إعادة تحميل الهويات
     const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
     loadAdminIdentities(activeTab);
 }
 
-// وظيفة حذف الهوية
 function deleteIdentity(id) {
     if (!confirm('هل أنت متأكد من حذف هذه الهوية؟ لا يمكن التراجع عن هذا الإجراء.')) {
         return;
     }
     
     identitiesDB = identitiesDB.filter(identity => identity.id !== id);
-    localStorage.setItem('identitiesDB', JSON.stringify(identitiesDB));
-    
-    // عرض رسالة تأكيد
+    localStorage.setItem('sharedDB', JSON.stringify(identitiesDB));
     alert('تم حذف الهوية بنجاح');
     
-    // إعادة تحميل الهويات
     const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
     loadAdminIdentities(activeTab);
 }
 
-// وظيفة تبديل التبويبات
 function switchTab(tabId) {
-    // تحديث أزرار التبويب
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
         if (btn.getAttribute('data-tab') === tabId) {
@@ -258,7 +232,6 @@ function switchTab(tabId) {
         }
     });
     
-    // تحديث محتوى التبويب
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
         if (content.id === tabId + '-tab') {
@@ -267,7 +240,6 @@ function switchTab(tabId) {
     });
 }
 
-// أحداث النقر على الأزرار في لوحة المسؤولين
 document.addEventListener('click', function(e) {
     const actionsDiv = e.target.closest('.identity-actions');
     if (!actionsDiv) return;
@@ -295,7 +267,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// حماية الصفحات الإدارية
 function protectAdminPages() {
     const isAdminPage = window.location.pathname.includes('admin');
     
@@ -304,11 +275,9 @@ function protectAdminPages() {
     }
 }
 
-// عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', function() {
     protectAdminPages();
     
-    // إذا كان المستخدم مسؤولاً، قم بتحديث رابط تسجيل الدخول
     if (currentUser?.isAdmin) {
         document.querySelectorAll('.admin-link').forEach(link => {
             link.textContent = 'لوحة المسؤولين';
@@ -316,13 +285,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // تحميل الهويات إذا كانت الصفحة تحتوي على العنصر
     if (document.getElementById('identitiesContainer')) {
         loadIdentities();
         updateRemainingIdentities();
     }
     
-    // تهيئة أزرار التبويب إذا كانت موجودة
     if (document.querySelector('.tab-btn.active')) {
         const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
         loadAdminIdentities(activeTab);
