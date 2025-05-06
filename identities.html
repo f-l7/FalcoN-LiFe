@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FalcoN LiFe - الهويات</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FalcoN LiFe - عرض الهويات</h1>
+        </header>
+        
+        <nav>
+            <a href="index.html">الصفحة الرئيسية</a>
+            <a href="identities.html" class="active">الهويات</a>
+            <a href="create-identity.html">إنشاء هوية</a>
+            <a href="admin-login.html" class="admin-link">تسجيل دخول المسؤولين</a>
+        </nav>
+        
+        <section id="identities-list">
+            <h2>الهويات المتاحة</h2>
+            <div class="search-box">
+                <input type="text" placeholder="ابحث عن هوية...">
+                <button>بحث</button>
+            </div>
+            
+            <div class="identities-container" id="identitiesContainer">
+                <!-- سيتم ملء الهويات بواسطة الجافاسكريبت -->
+                <p>جارٍ تحميل الهويات...</p>
+            </div>
+            
+            <div class="identity-count">
+                <p>عدد الهويات المسموح بها: <span id="remainingIdentities">2</span> / 2</p>
+            </div>
+        </section>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        // تحميل الهويات عند فتح الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            loadIdentities();
+            updateRemainingIdentities();
+        });
+    </script>
+</body>
+</html>
