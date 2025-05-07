@@ -1,11 +1,11 @@
 // 1. تهيئة Firebase - استبدل هذه القيم بمعلومات مشروعك
 const firebaseConfig = {
-  apiKey: "AIzaSyA...",
-  authDomain: "falconlife.firebaseapp.com",
-  projectId: "falconlife",
-  storageBucket: "falconlife.appspot.com",
-  messagingSenderId: "123...",
-  appId: "1:123..."
+  apiKey: "AIzaSyAubMRprii8FUwsXn9CARgsi7pe9L5zP0o",
+  authDomain: "falcon-life.firebaseapp.com",
+  projectId: "falcon-life",
+  storageBucket: "falcon-life.firebasestorage.app",
+  messagingSenderId: "243135246365",
+  appId: "1:243135246365:web:50f367881e0842656d16f4" 
 };
 
 // 2. تشغيل Firebase
