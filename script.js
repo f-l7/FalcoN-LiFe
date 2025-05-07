@@ -1,13 +1,80 @@
-// بيانات المسؤولين (يجب تغييرها في الإنتاج)
-const ADMIN_CREDENTIALS = {
-    username: "admin",
-    password: "FalcoN@1234"
+// 1. تهيئة Firebase - استبدل هذه القيم بمعلومات مشروعك
+const firebaseConfig = {
+  apiKey: "AIzaSyA...",
+  authDomain: "falconlife.firebaseapp.com",
+  projectId: "falconlife",
+  storageBucket: "falconlife.appspot.com",
+  messagingSenderId: "123...",
+  appId: "1:123..."
 };
 
-// محاكاة قاعدة البيانات - التعديل هنا فقط
-let identitiesDB = JSON.parse(localStorage.getItem('sharedDB')) || [];
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+// 2. تشغيل Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
+// 3. بيانات الدخول للمسؤول
+const ADMIN = {
+  username: "admin",
+  password: "admin123" // غيرها لشيء أكثر أماناً
+};
+
+// 4. دوال إدارة الهويات
+async function createIdentity() {
+  // جمع البيانات من النموذج
+  const identity = {
+    name: document.getElementById('name').value,
+    age: document.getElementById('age').value,
+    job: document.getElementById('job').value,
+    dob: document.getElementById('dob').value,
+    country: document.getElementById('country').value,
+    discordId: document.getElementById('discordId').value,
+    status: "pending",
+    createdAt: new Date().toISOString()
+  };
+
+  // إرسال البيانات لـ Firebase
+  await db.collection("identities").add(identity);
+  alert("تم إنشاء الهوية بنجاح!");
+  window.location.href = "identities.html";
+}
+
+// 5. عرض الهويات
+async function loadIdentities() {
+  const container = document.getElementById("identitiesContainer");
+  const snapshot = await db.collection("identities").get();
+  
+  snapshot.forEach(doc => {
+    const identity = doc.data();
+    container.innerHTML += `
+      <div class="identity-card">
+        <h3>${identity.name}</h3>
+        <p>العمر: ${identity.age}</p>
+        <p>الوظيفة: ${identity.job}</p>
+        <p>البلد: ${identity.country}</p>
+      </div>
+    `;
+  });
+}
+
+// 6. تسجيل دخول المسؤول
+function adminLogin() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  if (username === ADMIN.username && password === ADMIN.password) {
+    localStorage.setItem("isAdmin", "true");
+    window.location.href = "admin-panel.html";
+  } else {
+    alert("بيانات الدخول غير صحيحة!");
+  }
+}
+
+// 7. عند تحميل الصفحة
+window.onload = function() {
+  if (document.getElementById("identitiesContainer")) {
+    loadIdentities();
+  }
+};
 // وظيفة إنشاء هوية جديدة - التعديل هنا فقط
 function createIdentity() {
     const name = document.getElementById('name').value.trim();
